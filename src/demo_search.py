@@ -24,6 +24,8 @@ embeddings = np.load(VECS_PATH).astype("float32")
 assert D == embeddings.shape[1]
 assert embeddings.shape[0] == len(docs)
 
+print(f"Found {len(docs)} mathlib declarations")
+
 print("creating fast kNN database...")
 database = faiss.IndexFlatL2(D)
 database.add(embeddings)

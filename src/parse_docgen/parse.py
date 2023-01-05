@@ -6,15 +6,22 @@ from tqdm import tqdm
 
 PATH_DOCGEN_EXPORT = "docgen_export.json"
 OUT_PATH = "docgen_export_with_formal_statement.jsonl"
+ALLOWED_KINDS = ["theorem", "def", "structure"]
 
 def merge_typestars_of_binders(binders): 
-    binders = [re.sub(r"Type u_[0-9]", "Type*", x) for x in binders]
+    binders = [re.sub(r": Type u_[0-9]", ": Type*", x) for x in binders]
 
     for i in range(len(binders)-1):
-        if re.search(r"Type\*", binders[i]) and re.search(r"Type\*", binders[i+1]) and binders[i][0]==binders[i+1][0]:
+        if re.search(r": Type\*", binders[i]) and re.search(r": Type\*", binders[i+1]) and binders[i][0]==binders[i+1][0]:
             #print("left: ", binders[i][:binders[i].index(":")])
             #print("right: ", binders[i+1][1:])
-            binders[i+1] = binders[i][:binders[i].index(":")] + binders[i+1][1:]
+
+            # try and except wrapper for debugging
+            try:
+                binders[i+1] = binders[i][:binders[i].index(":")] + binders[i+1][1:]
+            except:
+                print(f"something went wrong, problem at index {i}")
+                print(binders)
             binders[i] = ""
 
     return [x for x in binders if x != ""]
@@ -61,11 +68,10 @@ def main():
     with open(PATH_DOCGEN_EXPORT) as f:
         db = json.load(f)
 
-    log = []
-
+    log = [] 
     for x in tqdm(db["decls"]): 
         # not memory efficient but that's ok
-        if x["kind"]=="theorem": 
+        if x["kind"] in ALLOWED_KINDS: 
 
             list_of_args = [y["arg"] for y in x["args"]]
             binders = [parse_single_arg(y) for y in list_of_args]
@@ -79,6 +85,7 @@ def main():
                 **x, 
                 "formal_statement": statement,
             })
+
 
     with open(OUT_PATH, "w") as f:
         ndjson.dump(log, f)
