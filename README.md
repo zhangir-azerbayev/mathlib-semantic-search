@@ -1,6 +1,8 @@
 # mathlib-semantic-search
 Semantic search for Lean mathlib using OpenAI's [embeddings API](https://openai.com/blog/new-and-improved-embedding-model/) and [Faiss](https://github.com/facebookresearch/faiss). 
 
+Tested with python 3.10.4. Packages in `requirements.txt`. 
+
 ## Running demo
 Save an openai api key to the environment variable `OPENAI_API_KEY`. Then `cd` into `src` and run `demo_search.py`. The mathlib embeddings are pre-computed, but do note embedding a query will cost you `$0.0004 / 1K tokens`. 
 
