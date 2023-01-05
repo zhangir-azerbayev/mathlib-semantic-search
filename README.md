@@ -5,7 +5,7 @@ Semantic search for Lean mathlib using OpenAI's [embeddings API](https://openai.
 Save an openai api key to the environment variable `OPENAI_API_KEY`. Then `cd` into `src` and run `demo_search.py`. The mathlib embeddings are pre-computed, but do note embedding a query will cost you `$0.0004 / 1K tokens`. 
 
 ## Recomputing mathlib embeddings
-Pull [leanprover-community/doc-gen] and run the `gen_docs` script. When generating the docs, we used mathlib commit hash `06d0adfa76594f304b4650d098273d4366ede61b`. Move the generated `export.json` to `src/parse_docgen/docgen_export.json`. 
+Pull [leanprover-community/doc-gen](https://github.com/leanprover-community/doc-gen) and run the `gen_docs` script. When generating the docs, we used mathlib commit hash `06d0adfa76594f304b4650d098273d4366ede61b`. Move the generated `export.json` to `src/parse_docgen/docgen_export.json`. 
 
 Then, in the `src/parse_docgen` directory run `python parse.py`. Then, `cd` into the `src/embed_mathlib` directory and run `python embed_mathlib.py` and `embeddings_to_numpy.py`. 
 
