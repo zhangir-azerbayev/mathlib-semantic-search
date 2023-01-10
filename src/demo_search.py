@@ -8,8 +8,8 @@ import time
 from embed_mathlib.embed_mathlib import text_of_entry
 
 
-DOCS_PATH = "parse_docgen/docgen_export_with_formal_statement.jsonl"
-VECS_PATH = "embed_mathlib/np_embeddings.npy"
+DOCS_PATH = "src/parse_docgen/docgen_export_with_formal_statement.jsonl"
+VECS_PATH = "src/embed_mathlib/np_embeddings.npy"
 D = 1536  # dimensionality of embedding
 K = 10  # number of results to retrieve
 

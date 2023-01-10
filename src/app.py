@@ -6,8 +6,8 @@ import numpy as np
 import faiss
 import openai
 import time
-from embed_mathlib.embed_mathlib import text_of_entry
-
+from embed_mathlib.embed_mathlib import text_of_entry, mk_vote
+from database import put
 
 DOCS_PATH = "./src/parse_docgen/docgen_export_with_formal_statement.jsonl"
 VECS_PATH = "./src/embed_mathlib/np_embeddings.npy"
@@ -69,13 +69,23 @@ def grab(query: str):
     return results
 
 
-input = st.text_input("Search mathlib with natural language:")
+input = st.text_input(
+    "Search mathlib with natural language:", placeholder="second isomorphism theorem"
+)
+
 if input:
     results = grab(input)
 
+    def click(val, i):
+        vote = mk_vote(result=results[i], val=val, rank=i, query=input)
+        put(vote)
+        print("sent vote")
+
     for i, x in enumerate(results):
         st.write(i)
+        up, down = st.button("👍", key=f"thumbup{i}"), st.button("👎", key=f"thumbdn{i}")
         code = text_of_entry(x)
         st.code(code, "haskell")
+
 
 # run this with `streamlit run src/app.py``
