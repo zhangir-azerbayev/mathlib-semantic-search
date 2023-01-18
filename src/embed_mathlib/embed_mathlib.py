@@ -9,28 +9,6 @@ from dataclasses import dataclass, field
 from uuid import uuid4
 from typing import Optional, Literal
 
-VoteVal = Literal[1, -1]
-
-@dataclass
-class Vote:
-    val: VoteVal
-    name: str
-    filename: str
-    line: int
-    rank: int
-    query: str
-    kind: str = field(default="mathlib-semantic-search-vote")
-    id: str = field(default_factory=lambda: uuid4().hex)
-
-def mk_vote(result, val: VoteVal, query : str, rank : int):
-    return Vote(
-        val = val,
-        name = result['name'],
-        filename = result['filename'],
-        line = result['line'],
-        rank = rank,
-        query = query,
-    )
 
 def batch_loader(seq, size):
     """

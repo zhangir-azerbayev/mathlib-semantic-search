@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<title>Mathlib Semantic Search</title>
+<form action="/" method="get">
+  <input
+    type="text"
+    id="query"
+    name="query"
+    value="{{ query }}"
+    autofocus
+    placeholder="Enter a natural language query"
+  />
+  <button type="submit">Search mathlib</button>
+</form>
+<div>
+  {% if results %}
+  <ol>
+    {% for x in results %}
+    <li>
+      {{ x['text'] }}
+      <button action="upvote/?name={{x['name']}}" method="post">upvote</button>
+    </li>
+    {% endfor %}
+  </ol>
+  {% endif %}
+</div>

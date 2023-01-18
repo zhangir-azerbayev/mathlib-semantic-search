@@ -4,17 +4,18 @@ import boto3
 from boto3.dynamodb.conditions import Key, Attr
 import os
 from uuid import uuid4
+import logging
+
+logger = logging.getLogger(__name__)
 
 dynamodb: Any = boto3.resource("dynamodb")
 TABLE_NAME = os.getenv("LEAN_CHAT_TABLE_NAME", "lean-chat")
 table = dynamodb.Table(TABLE_NAME)
 
-
 def put(obj):
-    assert is_dataclass(obj)
+    def to_field(k):
 
-    def to_field(f):
-        v = getattr(obj, f.name)
+        v = getattr(obj, k)
         t = type(v)
         if t is str:
             return {"S": v}
@@ -28,6 +29,17 @@ def put(obj):
             return {"NULL": True}
         raise TypeError(f"unsupported type {t}")
 
-    dynamodb.put_item(
-        TableName=TABLE_NAME, Item={f.name: to_field(f) for f in fields(obj)}
-    )
+    if is_dataclass(obj):
+        item = {f.name: to_field(f.name) for f in fields(obj)}
+    elif isinstance(obj, dict):
+        item = {k: to_field(k) for k in obj.keys()}
+    else:
+        raise TypeError(f"unsupported type {type(obj)}")
+    try:
+        dynamodb.put_item(
+            TableName=TABLE_NAME, Item=item
+        )
+        return True
+    except Exception as e:
+        logger.error(f"Database error: {e}")
+        return False

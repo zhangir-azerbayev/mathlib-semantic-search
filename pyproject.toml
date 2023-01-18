@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mathlib-semantic-search"
+description = 'Semantic search for mathlib'
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "Zhangir Azerbayev", email = "59542043+zhangir-azerbayev@users.noreply.github.com"},
+  { name = "E.W.Ayers", email = "edward.ayers@outlook.com" },
+]
+dependencies = [
+  "faiss_cpu==1.7.2",
+  "ndjson==0.3.1",
+  "numpy==1.23.0",
+  "openai==0.20.0",
+  "tqdm==4.64.0",
+  "streamlit",
+  "boto3",
+  "fastapi",
+  "uvicorn[standard]",
+  "Flask"
+]
+dynamic = ["version"]
+
+[project.urls]
+Documentation = "https://github.com/unknown/mathlib-semantic-search#readme"
+Issues = "https://github.com/unknown/mathlib-semantic-search/issues"
+Source = "https://github.com/unknown/mathlib-semantic-search"
+
+[tool.hatch.version]
+path = "src/__about__.py"
