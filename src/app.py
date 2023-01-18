@@ -1,15 +1,12 @@
 from dataclasses import dataclass, field
 from typing import Any, Literal, Optional, TypedDict, Union
 from uuid import uuid4
-import streamlit as st
-import pandas as pd
 import ndjson
 import numpy as np
 from datetime import datetime
 import faiss
 import openai
 import time
-from src.embed_mathlib.embed_mathlib import text_of_entry
 from src.database import DB
 
 ExprStr = Union[
