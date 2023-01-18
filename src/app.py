@@ -10,7 +10,7 @@ import faiss
 import openai
 import time
 from src.embed_mathlib.embed_mathlib import text_of_entry
-from src.database import put
+from src.database import DB
 
 ExprStr = Union[
     str, tuple[Literal['c', 'n'], "ExprStr"], tuple[Literal['n'], "ExprStr", "ExprStr"]
@@ -55,6 +55,7 @@ class AppState:
     ):
         self.cache = {}
         self.K = K
+        self.db = DB()
         print(f"loading docs from {docs_path}")
         with open(docs_path) as f:
             self.docs = ndjson.load(f)
@@ -74,12 +75,13 @@ class AppState:
 
         print("\n" + "#" * 10, "MATHLIB SEMANTIC SEARCH", "#" * 10 + "\n")
 
-    def upvote(self, name : str):
-        put({
+    def upvote(self, name : str, query : str):
+        self.db.put({
             "kind" : "mathlib-semantic-search/vote",
             "name" : name,
             "timestamp" : datetime.now().isoformat(),
             "id" : uuid4().hex,
+            "query" : query,
         })
 
     def search(self, query: str, K=None) -> list[Result]:
@@ -107,6 +109,13 @@ class AppState:
         print(f"Retrieved {K} results in {end_time - start_time} seconds")
         self.cache[query] = results
         return results
+
+    _cur = None
+    @classmethod
+    def current(cls):
+        if cls._cur is None:
+            cls._cur = cls()
+        return cls._cur
 
 
 # input = st.text_input(

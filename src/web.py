@@ -6,8 +6,6 @@ app = Flask(__name__)
 
 state = AppState()
 
-
-
 @app.route("/")
 def index():
     query = request.args.get('query', None)
@@ -22,12 +20,14 @@ def index():
     return render_template('main.html', query = query, results = results)
 
 
-@app.post("/upvote")
+@app.post("/upvote/")
 def upvote():
-    name = request.args.get('name')
+    query = request.args.get('query', None)
+    name = request.args.get('name', None)
     assert name is not None
-    print(f'upvoting {name}')
+    assert query is not None
+    print(f'upvoting {name} for {query}')
     name = request.args['name']
-    state.upvote(name)
+    state.upvote(name, query)
 
-    return "Success"
+    return "Success."

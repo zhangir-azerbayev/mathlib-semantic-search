@@ -8,38 +8,31 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-dynamodb: Any = boto3.resource("dynamodb")
-TABLE_NAME = os.getenv("LEAN_CHAT_TABLE_NAME", "lean-chat")
-table = dynamodb.Table(TABLE_NAME)
+class DB:
+    def __init__(self):
+        region = os.environ.get('AWS_REGION', "us-east-1")
 
-def put(obj):
-    def to_field(k):
 
-        v = getattr(obj, k)
-        t = type(v)
-        if t is str:
-            return {"S": v}
-        if t is bytes:
-            return {"B": v}
-        if isinstance(v, (int, float)):
-            return {"N": str(v)}
-        if t is bool:
-            return {"BOOL": v}
-        if v is None:
-            return {"NULL": True}
-        raise TypeError(f"unsupported type {t}")
+        self.db: Any = boto3.resource("dynamodb", region_name = region)
+        self.table_name = os.getenv("LEAN_CHAT_TABLE_NAME", "lean-chat")
+        self.table = self.db.Table(self.table_name)
 
-    if is_dataclass(obj):
-        item = {f.name: to_field(f.name) for f in fields(obj)}
-    elif isinstance(obj, dict):
-        item = {k: to_field(k) for k in obj.keys()}
-    else:
-        raise TypeError(f"unsupported type {type(obj)}")
-    try:
-        dynamodb.put_item(
-            TableName=TABLE_NAME, Item=item
-        )
-        return True
-    except Exception as e:
-        logger.error(f"Database error: {e}")
-        return False
+    def put(self, obj):
+        def to_field(v):
+            t = type(v)
+            if t is not str:
+                print('warning: check how dynamo expects non-string values')
+            return v
+        if is_dataclass(obj):
+            item = {f.name: to_field(getattr(obj, f.name)) for f in fields(obj)}
+        elif isinstance(obj, dict):
+            item = {k: to_field(v) for k,v in obj.items()}
+            print(item)
+        else:
+            raise TypeError(f"unsupported type {type(obj)}")
+        try:
+            self.table.put_item(Item=item )
+            return True
+        except Exception as e:
+            logger.error(f"Database error: {e}")
+            return False

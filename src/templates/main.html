@@ -1,5 +1,7 @@
 <!DOCTYPE html>
+
 <title>Mathlib Semantic Search</title>
+<h1>Mathlib Semantic Search</h1>
 <form action="/" method="get">
   <input
     type="text"
@@ -17,9 +19,31 @@
     {% for x in results %}
     <li>
       {{ x['text'] }}
-      <button action="upvote/?name={{x['name']}}" method="post">upvote</button>
+      <button class="upvote-button" id="{{x['name']}}">Upvote</button>
     </li>
     {% endfor %}
   </ol>
   {% endif %}
 </div>
+<script>
+  let searchParams = new URLSearchParams(window.location.search);
+  let query = searchParams.get("query");
+  function upvote(e) {
+    if (e.target.disabled) {
+      return;
+    }
+    e.preventDefault();
+    name = e.target.id;
+    params = new URLSearchParams({
+      name: name,
+      query: query,
+    });
+    fetch(`upvote?` + params, { method: "POST" });
+    e.target.disabled = true;
+  }
+  // add fun as an event handler for the upvote buttons
+  elements = document.getElementsByClassName("upvote-button");
+  Array.from(elements).forEach((element) =>
+    element.addEventListener("click", upvote)
+  );
+</script>
