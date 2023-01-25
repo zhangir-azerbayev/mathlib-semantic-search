@@ -7,6 +7,8 @@ import openai
 import time
 from embed_mathlib.embed_mathlib import text_of_entry
 
+GEN_FAKE_ANSWER = True
+
 
 DOCS_PATH = "parse_docgen/docgen_export_with_formal_statement.jsonl"
 VECS_PATH = "embed_mathlib/np_embeddings.npy"
@@ -34,6 +36,27 @@ print("\n" + "#" * 10, "MATHLIB SEMANTIC SEARCH", "#" * 10 + "\n")
 
 while True:
     query = input("\n\nInput search query: ")
+
+    if GEN_FAKE_ANSWER: 
+        few_shot = open('codex_prompt.txt').read().strip()
+        codex_prompt = few_shot + " " + query + "\n"
+
+        print("###PROMPT: \n", codex_prompt)
+
+        out = openai.Completion.create(
+            engine="code-davinci-002",
+            prompt=codex_prompt,
+            max_tokens=512,
+            n=1,
+            temperature=0,
+            stop=":=",
+        )
+
+        print(out)
+
+        fake_ans = out["choices"][0]["text"]
+        query = f"/-- {query} -/\n" + fake_ans
+        print("###QUERY: \n", query)
 
     print("searching...")
     start_time = time.time()
