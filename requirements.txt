@@ -6,3 +6,4 @@ tqdm==4.64.0
 boto3
 Flask
 gunicorn
+python-dotenv
