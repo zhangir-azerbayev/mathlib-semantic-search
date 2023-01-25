@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from flask import Flask, request, render_template
 from src.app import AppState
 from src.embed_mathlib.embed_mathlib import text_of_entry
