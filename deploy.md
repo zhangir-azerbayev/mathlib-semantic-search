@@ -37,7 +37,7 @@ Mostly following [this guide](https://www.digitalocean.com/community/tutorials/h
     User=ubuntu
     Group=www-data
     WorkingDirectory=/home/ubuntu/mathlib-semantic-search
-    ExecStart=/home/ubuntu/.local/bin/gunicorn --workers 1 --bind unix:mathlib-search.sock -m 777 src.web:app
+    ExecStart=/home/ubuntu/.local/bin/gunicorn --workers 1 --bind unix:mathlib-search.sock -m 007 src.web:app
 
     [Install]
     WantedBy=multi-user.target
