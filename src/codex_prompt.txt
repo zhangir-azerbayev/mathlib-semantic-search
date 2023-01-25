@@ -1,0 +1,35 @@
+The following is a natural language request for a theorem or definition. Give the corresponding theorem or definition in Lean mathlib. 
+Request: The triangle inequality. 
+theorem abs_sum_leq_sum_abs (n : ℕ) (f : ℕ → ℂ) : 
+  abs (∑ i in finset.range n, f i) ≤ ∑ i in finset.range n, abs (f i) :=
+
+The following is a natural language request for a theorem or definition. Give the corresponding theorem or definition in Lean mathlib. 
+Request: Sylow subgroup. 
+structure sylow (p : ℕ) (G : Type*) [group G] : Type* :=
+
+The following is a natural language request for a theorem or definition. Give the corresponding theorem or definition in Lean mathlib. 
+Description: What happens when we take the quotient of a group by its center?
+theorem comm_group_of_cycle_center_quotient {G H : Type*} [group G] [group H]
+  [is_cyclic H] (f : G →* H) (hf : f.ker ≤ center G) :
+  comm_group G :=
+
+The following is a natural language request for a theorem or definition. Give the corresponding theorem or definition in Lean mathlib. 
+Request: Definition of the Krull Topology. 
+def krull_topology (K : Type*) (L : Type*) [field K] [field L] [algebra K L] :
+    topological_space (L ≃ₐ[K] L) :=
+
+The following is a natural language request for a theorem or definition. Give the corresponding theorem or definition in Lean mathlib. 
+Request: What can I use to prove a complex-valued function is constant? 
+theorem exists_eq_const_of_bounded {E : Type u} [normed_group E]
+  [normed_space ℂ E] {F : Type v} [normed_group F] [normed_space ℂ F]
+  {f : E → F} (hf : differentiable ℂ f) (hb : metric.bounded (set.range f)) :
+  ∃ (c : F), f = function.const E c :=
+
+The following is a natural language request for a theorem or definition. Give the corresponding theorem or definition in Lean mathlib. 
+Request: If I know `a^(p-1) = 1 mod p`, how can I prove `nat.prime p`? 
+theorem lucas_primality (p : ℕ) (a : zmod p) (ha : a ^ (p - 1) = 1) 
+    (hd : ∀ (q : ℕ), nat.prime q → q ∣ p - 1 → a ^ ((p - 1) / q) ≠ 1) :
+    nat.prime p :=
+
+The following is a natural language request for a theorem or definition. Give the corresponding theorem or definition in Lean mathlib. 
+Request:
