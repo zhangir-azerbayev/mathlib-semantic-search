@@ -34,11 +34,31 @@ class Result(TypedDict):
     structure_fields : list
     noncomputable_reason : Optional[str]
 
+
+def url_of_entry(x : Result):
+    """ Hackily recover the URL from file and name. """
+    try:
+        # https://leanprover-community.github.io/mathlib_docs/topology/instances/ennreal.html#metric_space_emetric_ball
+        name = x['name'] # metric_space_emetric_ball
+        file = x['filename'] # "/data/lily/zaa7/duplicates/doc-gen/_target/deps/mathlib/src/topology/instances/ennreal.lean"
+        _, f = file.split('mathlib/src/')
+        p, ext = f.split('.')
+        return f"https://leanprover-community.github.io/mathlib_docs/{p}.html#{name}"
+    except Exception:
+        return "#"
+
+
+@dataclass
+class SearchResult:
+    query: str
+    results: list[Result]
+    fake_answer: Optional[str] = field(default =None)
+
 class AppState:
     docs: list
     database: faiss.IndexFlatL2
     K: int
-    cache: dict[str, list[Result]]
+    cache: dict[str, SearchResult]
     """ Number of results to return """
 
     def __init__(
@@ -48,12 +68,10 @@ class AppState:
         vecs_path="./src/embed_mathlib/np_embeddings.npy",
         D=1536,  # dimensionality of embedding
         K=10,  # number of results to retrieve
-        GEN_FAKE_ANSWER = False,
     ):
         self.cache = {}
         self.K = K
         self.db = DB()
-        self.GEN_FAKE_ANSWER = GEN_FAKE_ANSWER
         print(f"loading docs from {docs_path}")
         with open(docs_path) as f:
             self.docs = ndjson.load(f)
@@ -82,12 +100,12 @@ class AppState:
             "query" : query,
         })
 
-    def search(self, query: str, K=None) -> list[Result]:
+    def search(self, query: str, K=None, gen_fake_answer : bool = False) -> SearchResult:
         if query in self.cache:
             return self.cache[query]
-
-        if self.GEN_FAKE_ANSWER:
-            few_shot = open('codex_prompt.txt').read().strip()
+        fake_ans = None
+        if gen_fake_answer:
+            few_shot = open('./src/codex_prompt.txt').read().strip()
             codex_prompt = few_shot + " " + query + "\n"
 
             print("###PROMPT: \n", codex_prompt)
@@ -103,10 +121,9 @@ class AppState:
 
             print(out)
 
-            fake_ans = out["choices"][0]["text"]
+            fake_ans = out["choices"][0]["text"] # type: ignore
             query = f"/-- {query} -/\n" + fake_ans
             print("###QUERY: \n", query)
-
         K = K or self.K
         start_time = time.time()
 
@@ -127,8 +144,12 @@ class AppState:
         end_time = time.time()
 
         print(f"Retrieved {K} results in {end_time - start_time} seconds")
-        self.cache[query] = results
-        return results
+        result = SearchResult(
+            query = query, results = results, fake_answer = fake_ans
+        )
+        self.cache[query] = result
+        return result
+
 
     _cur = None
     @classmethod
@@ -136,25 +157,3 @@ class AppState:
         if cls._cur is None:
             cls._cur = cls()
         return cls._cur
-
-
-# input = st.text_input(
-#     "Search mathlib with natural language:", placeholder="second isomorphism theorem"
-# )
-
-# if input:
-#     results = grab(input)
-
-#     def click(val, i):
-#         vote = mk_vote(result=results[i], val=val, rank=i, query=input)
-#         put(vote)
-#         print("sent vote")
-
-#     for i, x in enumerate(results):
-#         st.write(i)
-#         up, down = st.button("👍", key=f"thumbup{i}"), st.button("👎", key=f"thumbdn{i}")
-#         code = text_of_entry(x)
-#         st.code(code, "haskell")
-
-
-# run this with `streamlit run src/app.py``

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css" />
+
 <title>Mathlib Semantic Search</title>
 <main class="pa3 pa5-ns sans-serif">
   <h1>Mathlib Semantic Search!</h1>
@@ -19,15 +20,28 @@
       </fieldset>
     </form>
   </div>
+  {% if fake_answer %}
+  <div class="br3 hidden ba b--black-10 mv4">
+    <h1 class="f4 bg-lightest-blue br3 br--top black-80 mv0 pv2 ph3">Fake answer:
+    </h1>
+    <div class="pa3 bt b--black-10">
+      <pre class=" f6 f5-ns lh-copy measure"><code class="language-lean">{{ fake_answer }}</code></pre>
+    </div>
+  </div>
+  Using the embeddings from the fake answer we get:
+  {% endif %}
 
   <div>
     {% if results %}
     <ol class="list f6 pl0 mt3 mb0">
       {% for x in results %}
       <li class="br3 hidden ba b--black-10 mv4">
-        <h1 class="f4 bg-near-white br3 br--top black-60 mv0 pv2 ph3"><code>{{ x['name'] }}</code></h1>
+        <h1 class="f4 bg-near-white br3 br--top black-60 mv0 pv2 ph3">
+          <a class="link black-60" href="{{ x['url'] }}"><code class="language-lean">{{ x['name'] }}</code></a>
+        </h1>
+
         <div class="pa3 bt b--black-10">
-          <pre class=" f6 f5-ns lh-copy measure">{{ x['text'] }} </pre>
+          <pre class=" f6 f5-ns lh-copy measure"><code class="language-lean">{{ x['text'] }} </code></pre>
         </div>
         <button
           class="upvote-button button-reset f6 link dim br3 ba pa3 pv2 ma2 dib b--light-blue bg-transparent button-reset"
