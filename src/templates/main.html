@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css" />
+
+<title>Mathlib Semantic Search</title>
+<main class="pa3 pa5-ns sans-serif">
+  <h1>Mathlib Semantic Search!</h1>
+  <div>
+    <form class="bg-lightest-blue mw7 pa4 br2-ns ba b--black-10" action="/" method="get">
+      <fieldset class="cf bn ma0 pa0">
+        <legend class="pa0 f5 f4-ns mb3 black-80">Search mathlib with natural language</legend>
+        <div class="cf">
+          <label class="clip" for="email-address">Search query</label>
+          <input class="f6 f5-l input-reset bn fl black-80 bg-white pa3 lh-solid w-100 w-75-m w-80-l br2-ns br--left-ns"
+            type="text" id="query" name="query" value="{{ query }}" autofocus
+            placeholder="The second isomorphism theorem">
+          <input
+            class="f6 f5-l button-reset fl pv3 tc bn bg-animate bg-black-70 hover-bg-black white pointer w-100 w-25-m w-20-l br2-ns br--right-ns"
+            type="submit" value="Search">
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  {% if fake_answer %}
+  <div class="br3 hidden ba b--black-10 mv4">
+    <h1 class="f4 bg-lightest-blue br3 br--top black-80 mv0 pv2 ph3">Fake answer:
+    </h1>
+    <div class="pa3 bt b--black-10">
+      <pre class=" f6 f5-ns lh-copy measure"><code class="language-lean">{{ fake_answer }}</code></pre>
+    </div>
+  </div>
+  Using the embeddings from the fake answer we get:
+  {% endif %}
+
+  <div>
+    {% if results %}
+    <ol class="list f6 pl0 mt3 mb0">
+      {% for x in results %}
+      <li class="br3 hidden ba b--black-10 mv4">
+        <h1 class="f4 bg-near-white br3 br--top black-60 mv0 pv2 ph3">
+          <a class="link black-60" href="{{ x['url'] }}"><code class="language-lean">{{ x['name'] }}</code></a>
+        </h1>
+
+        <div class="pa3 bt b--black-10">
+          <pre class=" f6 f5-ns lh-copy measure"><code class="language-lean">{{ x['text'] }} </code></pre>
+        </div>
+        <button
+          class="upvote-button button-reset f6 link dim br3 ba pa3 pv2 ma2 dib b--light-blue bg-transparent button-reset"
+          id="{{x['name']}}">Upvote</button>
+      </li>
+      {% endfor %}
+    </ol>
+    {% endif %}
+  </div>
+</main>
+<script>
+  let searchParams = new URLSearchParams(window.location.search);
+  let query = searchParams.get("query");
+  function upvote(e) {
+    if (e.target.disabled) {
+      return;
+    }
+    e.preventDefault();
+    name = e.target.id;
+    params = new URLSearchParams({
+      name: name,
+      query: query,
+    });
+    fetch(`upvote?` + params, { method: "POST" });
+    e.target.disabled = true;
+  }
+  // add fun as an event handler for the upvote buttons
+  elements = document.getElementsByClassName("upvote-button");
+  Array.from(elements).forEach((element) =>
+    element.addEventListener("click", upvote)
+  );
+</script>

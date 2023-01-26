@@ -3,4 +3,7 @@ ndjson==0.3.1
 numpy==1.23.0
 openai==0.20.0
 tqdm==4.64.0
-streamlit
+boto3
+Flask
+gunicorn
+python-dotenv
