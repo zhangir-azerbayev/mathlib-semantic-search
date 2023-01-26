@@ -2,7 +2,7 @@ from app import AppState
 from embed_mathlib.embed_mathlib import text_of_entry
 
 if __name__ == "__main__":
-    app = AppState()
+    app = AppState(GEN_FAKE_ANSWER = True)
 
     while True:
         query = input("\n\nInput search query: ")

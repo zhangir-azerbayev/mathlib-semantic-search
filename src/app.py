@@ -49,10 +49,12 @@ class AppState:
         vecs_path="./src/embed_mathlib/np_embeddings.npy",
         D=1536,  # dimensionality of embedding
         K=10,  # number of results to retrieve
+        GEN_FAKE_ANSWER = False,
     ):
         self.cache = {}
         self.K = K
         self.db = DB()
+        self.GEN_FAKE_ANSWER = GEN_FAKE_ANSWER
         print(f"loading docs from {docs_path}")
         with open(docs_path) as f:
             self.docs = ndjson.load(f)
@@ -84,6 +86,28 @@ class AppState:
     def search(self, query: str, K=None) -> list[Result]:
         if query in self.cache:
             return self.cache[query]
+
+        if self.GEN_FAKE_ANSWER:
+            few_shot = open('codex_prompt.txt').read().strip()
+            codex_prompt = few_shot + " " + query + "\n"
+
+            print("###PROMPT: \n", codex_prompt)
+
+            out = openai.Completion.create(
+                engine="code-davinci-002",
+                prompt=codex_prompt,
+                max_tokens=512,
+                n=1,
+                temperature=0,
+                stop=":=",
+            )
+
+            print(out)
+
+            fake_ans = out["choices"][0]["text"]
+            query = f"/-- {query} -/\n" + fake_ans
+            print("###QUERY: \n", query)
+
         K = K or self.K
         start_time = time.time()
 
