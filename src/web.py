@@ -1,10 +1,13 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from flask import Flask, request, render_template
 from src.app import AppState
 from src.embed_mathlib.embed_mathlib import text_of_entry
 
 app = Flask(__name__)
 
-state = AppState()
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 @app.route("/")
 def index():
@@ -13,7 +16,7 @@ def index():
     if query is None:
         return render_template('main.html', query=query or "", results = None)
 
-    results = state.search(query)
+    results = AppState.current().search(query)
     results = [
         dict(text = text_of_entry(r), name = r['name']) for r in results
     ]
@@ -28,6 +31,6 @@ def upvote():
     assert query is not None
     print(f'upvoting {name} for {query}')
     name = request.args['name']
-    state.upvote(name, query)
+    AppState.current().upvote(name, query)
 
     return "Success."

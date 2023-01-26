@@ -13,7 +13,6 @@ ExprStr = Union[
     str, tuple[Literal['c', 'n'], "ExprStr"], tuple[Literal['n'], "ExprStr", "ExprStr"]
 ]
 
-
 class Arg(TypedDict):
   arg : ExprStr
   implicit : bool
