@@ -13,7 +13,7 @@
       <fieldset class="cf bn ma0 pa0">
         <legend class="pa0 f5 f4-ns mb3 black-80">Search mathlib with natural language</legend>
         <div class="cf">
-          <label class="clip" for="email-address">Search query</label>
+          <label class="clip" for="query">Search query</label>
           <input class="f6 f5-l input-reset bn fl black-80 bg-white pa3 lh-solid w-100 w-75-m w-80-l br2-ns br--left-ns"
             type="text" id="query" name="query" value="{{ query }}" autofocus
             placeholder="The second isomorphism theorem">
@@ -26,13 +26,13 @@
   </div>
   {% if fake_answer %}
   <div class="br3 hidden ba b--black-10 mv4">
-    <h1 class="f4 bg-lightest-blue br3 br--top black-80 mv0 pv2 ph3">Fake answer:
+    <h1 class="f4 bg-lightest-blue br3 br--top black-80 mv0 pv2 ph3">Predicted Autoformalisation
     </h1>
     <div class="pa3 bt b--black-10">
       <pre class=" f6 f5-ns lh-copy measure"><code class="language-lean">{{ fake_answer }}</code></pre>
     </div>
   </div>
-  Using the embeddings from the fake answer we get:
+  Using the embeddings from the predicted autoformalisation we get:
   {% endif %}
 
   <div>
@@ -53,6 +53,28 @@
       </li>
       {% endfor %}
     </ol>
+    {% if include_suggested %}
+    <p>Don't see the result you are after? Help us improve search by typing the result you do want to see:</p>
+    <form class="bg-lightest-blue mw7 pa4 br2-ns ba b--black-10" action="/suggest" method="post" id="suggestion-form">
+      <fieldset class="cf bn ma0 pa0">
+        <legend class="pa0 f5 f4-ns mb3 black-80">Suggest an answer</legend>
+        <div class="cf">
+          <label class="clip" for="suggestion">Suggestion</label>
+          <input class="f6 f5-l input-reset bn fl black-80 bg-white pa3 lh-solid w-100 w-75-m w-80-l br2-ns br--left-ns"
+            id="suggestion" name="suggestion" placeholder="nat.add_comm" list="suggestion-list">
+          <datalist id="suggestion-list" name="suggestion-list">
+            {% for s in decl_names %}
+            <option value="{{ s }}">{{ s }}</option>
+            {% endfor %}
+          </datalist>
+          <input id="suggestion-submit"
+            class="f6 f5-l button-reset fl pv3 tc bn bg-animate bg-black-70 hover-bg-black white pointer w-100 w-25-m w-20-l br2-ns br--right-ns"
+            type="submit" value="Submit">
+        </div>
+        <input type="hidden" name="query" value="{{query}}" />
+      </fieldset>
+    </form>
+    {% endif %}
     {% endif %}
   </div>
 </main>

@@ -75,6 +75,7 @@ class AppState:
         print(f"loading docs from {docs_path}")
         with open(docs_path) as f:
             self.docs = ndjson.load(f)
+        self.decl_names = list(set(x['name'] for x in self.docs if 'name' in x))
 
         print(f"loading embeddings from {vecs_path}")
         embeddings = np.load(vecs_path).astype("float32")
@@ -95,6 +96,15 @@ class AppState:
         self.db.put({
             "kind" : "mathlib-semantic-search/vote",
             "name" : name,
+            "timestamp" : datetime.now().isoformat(),
+            "id" : uuid4().hex,
+            "query" : query,
+        })
+
+    def suggestion(self, suggestion : str, query):
+        self.db.put({
+            "kind" : "mathlib-semantic-search/suggestion",
+            "suggestion" : suggestion,
             "timestamp" : datetime.now().isoformat(),
             "id" : uuid4().hex,
             "query" : query,
