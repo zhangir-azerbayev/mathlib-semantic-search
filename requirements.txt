@@ -8,3 +8,4 @@ boto3
 Flask
 gunicorn
 python-dotenv
+diskcache
