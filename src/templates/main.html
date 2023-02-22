@@ -24,6 +24,15 @@
       </fieldset>
     </form>
   </div>
+  {% if error %}
+    <div class="br3 hidden ba b--black-10 mv4">
+      <h1 class="f4 bg-washed-red br3 br--top black-80 mv0 pv2 ph3">Error
+      </h1>
+      <div class="pa3 bt b--black-10">
+        {{ error }}
+      </div>
+    </div>
+  {% endif %}
   {% if fake_answer %}
   <div class="br3 hidden ba b--black-10 mv4">
     <h1 class="f4 bg-lightest-blue br3 br--top black-80 mv0 pv2 ph3">Predicted Autoformalisation

@@ -16,6 +16,7 @@ ExprStr = Union[
     str, tuple[Literal["c", "n"], "ExprStr"], tuple[Literal["n"], "ExprStr", "ExprStr"]
 ]
 
+
 @backoff.on_exception(backoff.expo, openai.error.RateLimitError)
 def call_api(**kwargs):
     return openai.Completion.create(**kwargs)
@@ -24,6 +25,10 @@ def call_api(**kwargs):
 class Arg(TypedDict):
     arg: ExprStr
     implicit: bool
+
+
+class ModerationError(Exception):
+    pass
 
 
 class Result(TypedDict):
@@ -87,12 +92,13 @@ class AppState:
         self.db = DB()
         print(f"loading docs from {docs_path}")
         self.decl_names = set()
-        with self.docs:
-            with open(docs_path, "rt") as f:
-                for i, line in enumerate(f):
-                    doc = json.loads(line)
-                    self.decl_names.add(doc["name"])
-                    self.docs.set(i, doc)
+        if len(self.docs) == 0:
+            with self.docs:
+                with open(docs_path, "rt") as f:
+                    for i, line in enumerate(f):
+                        doc = json.loads(line)
+                        self.decl_names.add(doc["name"])
+                        self.docs.set(i, doc)
 
         print(f"loading embeddings from {vecs_path}")
         embeddings = np.load(vecs_path, mmap_mode="r").astype("float32")
@@ -155,13 +161,11 @@ class AppState:
             print(out)
 
             fake_ans = out["choices"][0]["text"]  # type: ignore
-            
-            mod_response = openai.Moderation.create(
-                    input = fake_ans
-                    )
+
+            mod_response = openai.Moderation.create(input=query + fake_ans)
             if mod_response["results"][0]["flagged"]:
-                # do html stuff
-            
+                raise ModerationError()
+
             query = f"/-- {query} -/\n" + fake_ans
             print("###QUERY: \n", query)
         K = K or self.K
@@ -170,7 +174,7 @@ class AppState:
         responses: Any = openai.Embedding.create(
             input=[query], model="text-embedding-ada-002"
         )
-        print('searching embedding db...')
+        print("searching embedding db...")
 
         query_vec = np.expand_dims(
             np.array(responses["data"][0]["embedding"]).astype("float32"), axis=0
