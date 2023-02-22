@@ -158,8 +158,6 @@ class AppState:
                 stop=":=",
             )
 
-            print(out)
-
             fake_ans = out["choices"][0]["text"]  # type: ignore
 
             mod_response = openai.Moderation.create(input=query + fake_ans)

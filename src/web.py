@@ -46,8 +46,8 @@ def index():
 
 @app.post("/upvote/")
 def upvote():
-    query = request.args.get("suggestion", None)
-    name = request.args.get("query", None)
+    query = request.args.get("query", None)
+    name = request.args.get("name", None)
     assert name is not None
     assert query is not None
     print(f"upvoting {name} for {query}")
