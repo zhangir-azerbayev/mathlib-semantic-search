@@ -155,6 +155,13 @@ class AppState:
             print(out)
 
             fake_ans = out["choices"][0]["text"]  # type: ignore
+            
+            mod_response = openai.Moderation.create(
+                    input = fake_ans
+                    )
+            if mod_response["results"][0]["flagged"]:
+                # do html stuff
+            
             query = f"/-- {query} -/\n" + fake_ans
             print("###QUERY: \n", query)
         K = K or self.K
