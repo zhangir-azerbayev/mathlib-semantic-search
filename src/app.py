@@ -10,10 +10,15 @@ import time
 from src.database import DB
 import json
 from diskcache import Cache
+import backoff
 
 ExprStr = Union[
     str, tuple[Literal["c", "n"], "ExprStr"], tuple[Literal["n"], "ExprStr", "ExprStr"]
 ]
+
+@backoff.on_exception(backoff.expo, openai.error.RateLimitError)
+def call_api(**kwargs):
+    return openai.Completion.create(**kwargs)
 
 
 class Arg(TypedDict):
@@ -138,10 +143,10 @@ class AppState:
 
             print("###PROMPT: \n", codex_prompt)
 
-            out = openai.Completion.create(
+            out = call_api(
                 engine="code-davinci-002",
                 prompt=codex_prompt,
-                max_tokens=512,
+                max_tokens=200,
                 n=1,
                 temperature=0,
                 stop=":=",
