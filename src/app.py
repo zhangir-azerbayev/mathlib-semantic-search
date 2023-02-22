@@ -8,41 +8,47 @@ import faiss
 import openai
 import time
 from src.database import DB
+import json
+from diskcache import Cache
 
 ExprStr = Union[
-    str, tuple[Literal['c', 'n'], "ExprStr"], tuple[Literal['n'], "ExprStr", "ExprStr"]
+    str, tuple[Literal["c", "n"], "ExprStr"], tuple[Literal["n"], "ExprStr", "ExprStr"]
 ]
 
+
 class Arg(TypedDict):
-  arg : ExprStr
-  implicit : bool
+    arg: ExprStr
+    implicit: bool
+
 
 class Result(TypedDict):
-    kind : str
-    line : int
-    name : str
-    doc_string : str
-    formal_statement : str
-    is_meta : bool
+    kind: str
+    line: int
+    name: str
+    doc_string: str
+    formal_statement: str
+    is_meta: bool
     type: ExprStr
-    filename : str
+    filename: str
 
-    args : list[Arg]
-    attributes : list[str]
-    constructors : list
-    equations : list
-    structure_fields : list
-    noncomputable_reason : Optional[str]
+    args: list[Arg]
+    attributes: list[str]
+    constructors: list
+    equations: list
+    structure_fields: list
+    noncomputable_reason: Optional[str]
 
 
-def url_of_entry(x : Result):
-    """ Hackily recover the URL from file and name. """
+def url_of_entry(x: Result):
+    """Hackily recover the URL from file and name."""
     try:
         # https://leanprover-community.github.io/mathlib_docs/topology/instances/ennreal.html#metric_space_emetric_ball
-        name = x['name'] # metric_space_emetric_ball
-        file = x['filename'] # "/data/lily/zaa7/duplicates/doc-gen/_target/deps/mathlib/src/topology/instances/ennreal.lean"
-        _, f = file.split('mathlib/src/')
-        p, ext = f.split('.')
+        name = x["name"]  # metric_space_emetric_ball
+        file = x[
+            "filename"
+        ]  # "/data/lily/zaa7/duplicates/doc-gen/_target/deps/mathlib/src/topology/instances/ennreal.lean"
+        _, f = file.split("mathlib/src/")
+        p, ext = f.split(".")
         return f"https://leanprover-community.github.io/mathlib_docs/{p}.html#{name}"
     except Exception:
         return "#"
@@ -52,13 +58,14 @@ def url_of_entry(x : Result):
 class SearchResult:
     query: str
     results: list[Result]
-    fake_answer: Optional[str] = field(default =None)
+    fake_answer: Optional[str] = field(default=None)
+
 
 class AppState:
-    docs: list
+    docs: Cache
     database: faiss.IndexFlatL2
     K: int
-    cache: dict[str, SearchResult]
+    cache: Cache
     """ Number of results to return """
 
     def __init__(
@@ -69,22 +76,27 @@ class AppState:
         D=1536,  # dimensionality of embedding
         K=10,  # number of results to retrieve
     ):
-        self.cache = {}
+        self.docs = Cache("./cache/docs")
+        self.cache = Cache("./cache/qs")
         self.K = K
         self.db = DB()
         print(f"loading docs from {docs_path}")
-        with open(docs_path) as f:
-            self.docs = ndjson.load(f)
-        self.decl_names = list(set(x['name'] for x in self.docs if 'name' in x))
+        self.decl_names = set()
+        with self.docs:
+            with open(docs_path, "rt") as f:
+                for i, line in enumerate(f):
+                    doc = json.loads(line)
+                    self.decl_names.add(doc["name"])
+                    self.docs.set(i, doc)
 
         print(f"loading embeddings from {vecs_path}")
         embeddings = np.load(vecs_path).astype("float32")
 
         # sanity checks
         assert D == embeddings.shape[1]
-        assert embeddings.shape[0] == len(self.docs)
+        assert embeddings.shape[0] == len(self.decl_names)
 
-        print(f"Found {len(self.docs)} mathlib declarations")
+        print(f"Found {len(self.decl_names)} mathlib declarations")
 
         print("creating fast kNN database...")
         self.database = faiss.IndexFlatL2(D)
@@ -92,30 +104,35 @@ class AppState:
 
         print("\n" + "#" * 10, "MATHLIB SEMANTIC SEARCH", "#" * 10 + "\n")
 
-    def upvote(self, name : str, query : str):
-        self.db.put({
-            "kind" : "mathlib-semantic-search/vote",
-            "name" : name,
-            "timestamp" : datetime.now().isoformat(),
-            "id" : uuid4().hex,
-            "query" : query,
-        })
+    def upvote(self, name: str, query: str):
+        self.db.put(
+            {
+                "kind": "mathlib-semantic-search/vote",
+                "name": name,
+                "timestamp": datetime.now().isoformat(),
+                "id": uuid4().hex,
+                "query": query,
+            }
+        )
 
-    def suggestion(self, suggestion : str, query):
-        self.db.put({
-            "kind" : "mathlib-semantic-search/suggestion",
-            "suggestion" : suggestion,
-            "timestamp" : datetime.now().isoformat(),
-            "id" : uuid4().hex,
-            "query" : query,
-        })
+    def suggestion(self, suggestion: str, query):
+        self.db.put(
+            {
+                "kind": "mathlib-semantic-search/suggestion",
+                "suggestion": suggestion,
+                "timestamp": datetime.now().isoformat(),
+                "id": uuid4().hex,
+                "query": query,
+            }
+        )
 
-    def search(self, query: str, K=None, gen_fake_answer : bool = False) -> SearchResult:
-        if query in self.cache:
-            return self.cache[query]
+    def search(self, query: str, K=None, gen_fake_answer: bool = False) -> SearchResult:
+        r: SearchResult = self.cache.get(query)  # type: ignore
+        if r is not None:
+            return r
         fake_ans = None
         if gen_fake_answer:
-            few_shot = open('./src/codex_prompt.txt').read().strip()
+            few_shot = open("./src/codex_prompt.txt").read().strip()
             codex_prompt = few_shot + " " + query + "\n"
 
             print("###PROMPT: \n", codex_prompt)
@@ -131,7 +148,7 @@ class AppState:
 
             print(out)
 
-            fake_ans = out["choices"][0]["text"] # type: ignore
+            fake_ans = out["choices"][0]["text"]  # type: ignore
             query = f"/-- {query} -/\n" + fake_ans
             print("###QUERY: \n", query)
         K = K or self.K
@@ -149,19 +166,17 @@ class AppState:
 
         idxs = np.squeeze(idxs_np).tolist()
 
-        results = [Result(**self.docs[i]) for i in idxs]
+        results = [Result(**self.docs.get(i)) for i in idxs]
 
         end_time = time.time()
 
         print(f"Retrieved {K} results in {end_time - start_time} seconds")
-        result = SearchResult(
-            query = query, results = results, fake_answer = fake_ans
-        )
-        self.cache[query] = result
+        result = SearchResult(query=query, results=results, fake_answer=fake_ans)
+        self.cache.set(query, result)
         return result
 
-
     _cur = None
+
     @classmethod
     def current(cls):
         if cls._cur is None:
