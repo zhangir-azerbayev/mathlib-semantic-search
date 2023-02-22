@@ -90,13 +90,14 @@ class AppState:
                     self.docs.set(i, doc)
 
         print(f"loading embeddings from {vecs_path}")
-        embeddings = np.load(vecs_path).astype("float32")
+        embeddings = np.load(vecs_path, mmap_mode="r").astype("float32")
 
         # sanity checks
+        print(embeddings.shape)
         assert D == embeddings.shape[1]
-        assert embeddings.shape[0] == len(self.decl_names)
+        assert embeddings.shape[0] == len(self.docs)
 
-        print(f"Found {len(self.decl_names)} mathlib declarations")
+        print(f"Found {len(self.docs)} mathlib declarations")
 
         print("creating fast kNN database...")
         self.database = faiss.IndexFlatL2(D)
@@ -157,6 +158,7 @@ class AppState:
         responses: Any = openai.Embedding.create(
             input=[query], model="text-embedding-ada-002"
         )
+        print('searching embedding db...')
 
         query_vec = np.expand_dims(
             np.array(responses["data"][0]["embedding"]).astype("float32"), axis=0

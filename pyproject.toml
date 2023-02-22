@@ -19,7 +19,6 @@ dependencies = [
   "numpy==1.23.0",
   "openai==0.20.0",
   "tqdm==4.64.0",
-  "streamlit",
   "boto3",
   "fastapi",
   "uvicorn[standard]",
