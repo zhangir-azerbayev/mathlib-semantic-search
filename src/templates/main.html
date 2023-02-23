@@ -1,9 +1,15 @@
 <!DOCTYPE html>
 <link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/aymanbagabas/iosevka-fonts@v6.1.2/dist/iosevka/iosevka.min.css">
+<style>
+  code, pre {
+    font-family: "Iosevka Web", monospace
+  }
+</style>
 
 <title>Mathlib Semantic Search</title>
 <main class="pa3 pa5-ns sans-serif">
-  <h1>Mathlib Semantic Search!</h1>
+  <h1>Mathlib Semantic Search</h1>
   <p>By <a href="https://twitter.com/zhangir_azerbay?s=20&t=c1n2Cdc-Y528jAc2yJNgzg">Zhangir Azerbayev</a> and <a
       href="https://edayers.com">Edward Ayers</a> (<a
       href="https://github.com/zhangir-azerbayev/mathlib-semantic-search">GitHub
@@ -34,7 +40,7 @@
     </div>
   {% endif %}
   {% if fake_answer %}
-  <details class="br3 hidden ba b--black-10 mv4">
+  <details class="br3 hidden ba b--black-10 mv4 mw7">
     <summary class="f4 bg-lightest-blue br3 br--top black-80 mv0 pv2 ph3">Predicted Autoformalisation
     </summary>
     <div class="pa3 bt b--black-10">
@@ -70,7 +76,7 @@
     {% endif %}
     <ol class="list f6 pl0 mt3 mb0">
       {% for x in results %}
-      <li class="br3 hidden ba b--black-10 mv4">
+      <li class="br3 hidden ba b--black-10 mv4 mw7">
         <h1 class="f4 bg-near-white br3 br--top black-60 mv0 pv2 ph3">
           <a class="link black-60" href="{{ x['url'] }}"><code class="language-lean">{{ x['name'] }}</code></a>
         </h1>
