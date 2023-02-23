@@ -8,14 +8,14 @@
 </style>
 
 <title>Mathlib Semantic Search</title>
-<main class="pa3 pa5-ns sans-serif">
+<main class="pa3 pa5-ns sans-serif mw8">
   <h1>Mathlib Semantic Search</h1>
   <p>By <a href="https://twitter.com/zhangir_azerbay?s=20&t=c1n2Cdc-Y528jAc2yJNgzg">Zhangir Azerbayev</a> and <a
       href="https://edayers.com">Edward Ayers</a> (<a
       href="https://github.com/zhangir-azerbayev/mathlib-semantic-search">GitHub
       source</a>)</p>
   <div>
-    <form class="bg-lightest-blue mw7 pa4 br2-ns ba b--black-10" action="/" method="get">
+    <form class="bg-lightest-blue  pa4 br2-ns ba b--black-10" action="/" method="get">
       <fieldset class="cf bn ma0 pa0">
         <legend class="pa0 f5 f4-ns mb3 black-80">Search mathlib with natural language</legend>
         <div class="cf">
@@ -40,7 +40,7 @@
     </div>
   {% endif %}
   {% if fake_answer %}
-  <details class="br3 hidden ba b--black-10 mv4 mw7">
+  <details class="br3 hidden ba b--black-10 mv4 ">
     <summary class="f4 bg-lightest-blue br3 br--top black-80 mv0 pv2 ph3">Predicted Autoformalisation
     </summary>
     <div class="pa3 bt b--black-10">
@@ -53,30 +53,36 @@
   <div>
     {% if results %}
     {% if include_suggested %}
-    <p>Don't see the result you are after? Help us improve search by typing the result you do want to see:</p>
-    <form class="bg-lightest-blue mw7 pa4 br2-ns ba b--black-10" action="/suggest" method="post" id="suggestion-form">
-      <fieldset class="cf bn ma0 pa0">
-        <legend class="pa0 f5 f4-ns mb3 black-80">Suggest an answer</legend>
-        <div class="cf">
-          <label class="clip" for="suggestion">Suggestion</label>
-          <input class="f6 f5-l input-reset bn fl black-80 bg-white pa3 lh-solid w-100 w-75-m w-80-l br2-ns br--left-ns"
-            id="suggestion" name="suggestion" placeholder="nat.add_comm" list="suggestion-list">
-          <datalist id="suggestion-list" name="suggestion-list">
-            {% for s in decl_names %}
-            <option value="{{ s }}">{{ s }}</option>
-            {% endfor %}
-          </datalist>
-          <input id="suggestion-submit"
-            class="f6 f5-l button-reset fl pv3 tc bn bg-animate bg-black-70 hover-bg-black white pointer w-100 w-25-m w-20-l br2-ns br--right-ns"
-            type="submit" value="Submit">
-        </div>
-        <input type="hidden" name="query" value="{{query}}" />
-      </fieldset>
-    </form>
+    <details class="br3 hidden ba b--black-10 mv4 ">
+      <summary class="f4 bg-lightest-blue br3 br--top black-80 mv0 pv2 ph3">Suggest an answer
+      </summary>
+      <div class="pa3 bt b--black-10">
+        <p>Don't see the result you are after? Help us improve search by typing the result you do want to see:</p>
+        <form class="pa2" action="/suggest" method="post" id="suggestion-form">
+          <fieldset class="cf bn ma0 pa0">
+            <div class="cf">
+              <label class="clip" for="suggestion">Suggestion</label>
+              <input class="f6 bn f5-l input-reset b--light-blue fl black-80 pa3 lh-solid w-75 w-75-m w-75-l br2-ns br--left-ns"
+                id="suggestion" name="suggestion" placeholder="nat.add_comm" list="suggestion-list">
+              <datalist id="suggestion-list" name="suggestion-list">
+                {% for s in decl_names %}
+                <option value="{{ s }}">{{ s }}</option>
+                {% endfor %}
+              </datalist>
+              <input id="suggestion-submit"
+                class="f6 f5-l button-reset fl pv3 tc bn bg-animate bg-black-70 hover-bg-black white pointer w-20 w-25-m w-20-l br2-ns br--right-ns"
+                type="submit" value="Submit">
+            </div>
+            <input type="hidden" name="query" value="{{query}}" />
+          </fieldset>
+        </form>
+
+      </div>
+    </details>
     {% endif %}
     <ol class="list f6 pl0 mt3 mb0">
       {% for x in results %}
-      <li class="br3 hidden ba b--black-10 mv4 mw7">
+      <li class="br3 hidden ba b--black-10 mv4 ">
         <h1 class="f4 bg-near-white br3 br--top black-60 mv0 pv2 ph3">
           <a class="link black-60" href="{{ x['url'] }}"><code class="language-lean">{{ x['name'] }}</code></a>
         </h1>

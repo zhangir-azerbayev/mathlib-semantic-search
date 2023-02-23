@@ -32,7 +32,8 @@ def index():
             query=query,
             results=results,
             fake_answer=search_result.fake_answer,
-            decl_names=AppState.current().decl_names,
+            # decl_names=list(AppState.current().decl_names), # [todo] this ends up bloating the html to 3MB
+            decl_names=[],
             include_suggested=include_suggested,
         )
     except ModerationError:
