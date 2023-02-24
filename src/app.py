@@ -164,13 +164,15 @@ class AppState:
             if mod_response["results"][0]["flagged"]:
                 raise ModerationError()
 
-            query = f"/-- {query} -/\n" + fake_ans
+            query2 = f"/-- {query} -/\n" + fake_ans
             print("###QUERY: \n", query)
+        else:
+            query2 = query
         K = K or self.K
         start_time = time.time()
 
         responses: Any = openai.Embedding.create(
-            input=[query], model="text-embedding-ada-002"
+            input=[query2], model="text-embedding-ada-002"
         )
         print("searching embedding db...")
 
