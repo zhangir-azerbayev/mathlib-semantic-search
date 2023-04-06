@@ -1,3 +1,4 @@
+*Note:* Because this repo relied on the now unsupported `code-davinci-002`, the search demo will no longer work. It is trivial to replace codex with the chat api.
 # mathlib-semantic-search
 Semantic search for Lean mathlib using OpenAI's [embeddings API](https://openai.com/blog/new-and-improved-embedding-model/) and [Faiss](https://github.com/facebookresearch/faiss). 
 
